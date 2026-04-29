@@ -296,49 +296,22 @@
     <textarea name="申請理由說明" id="reason" rows="5" placeholder="請說明申請理由，包含使用目的、病人需求、預計使用量等..." required></textarea>
   </div>
 
-  <!-- 附件上傳 -->
+  <!-- 附件說明 -->
   <div class="sec">
     <div class="sec-hd">附件上傳</div>
-    <p style="font-size:12px;color:#666;margin-bottom:12px;">請上傳以下文件照片（可拍照或選擇相簿）：<br/>① 報價單　② 衛部(署)許可證影本　③ 仿單型錄　④ 健保核價資料或健保不給付證明</p>
-
-    <div class="upload-item" onclick="document.getElementById('file1').click()">
-      <div class="upload-btn" id="label1">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <span>報價單</span>
-      </div>
-      <input type="file" id="file1" accept="image/*" capture="environment" style="display:none" onchange="previewFile(this,'label1','prev1')" />
-      <img id="prev1" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover;" />
+    <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:16px;">
+      <p style="font-size:14px;font-weight:600;color:#856404;margin-bottom:8px;">📎 附件請隨後以 Email 寄送</p>
+      <p style="font-size:13px;color:#555;line-height:1.9;">
+      請將以下文件拍照後寄至：<br/>
+      <strong style="color:#1a5fa8;font-size:14px;">joanne032694@gmail.com</strong><br/><br/>
+      ① 報價單<br/>
+      ② 衛部(署)許可證影本<br/>
+      ③ 仿單型錄<br/>
+      ④ 健保核價資料或健保不給付證明
+      </p>
+      <p style="font-size:12px;color:#888;margin-top:10px;">＊信件主旨請註明廠商名稱及申請編號<br/>＊若檢附不完整，不予收受</p>
     </div>
-
-    <div class="upload-item" onclick="document.getElementById('file2').click()" style="margin-top:10px;">
-      <div class="upload-btn" id="label2">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <span>許可證影本</span>
-      </div>
-      <input type="file" id="file2" accept="image/*" capture="environment" style="display:none" onchange="previewFile(this,'label2','prev2')" />
-      <img id="prev2" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover;" />
-    </div>
-
-    <div class="upload-item" onclick="document.getElementById('file3').click()" style="margin-top:10px;">
-      <div class="upload-btn" id="label3">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <span>仿單型錄</span>
-      </div>
-      <input type="file" id="file3" accept="image/*" capture="environment" style="display:none" onchange="previewFile(this,'label3','prev3')" />
-      <img id="prev3" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover;" />
-    </div>
-
-    <div class="upload-item" onclick="document.getElementById('file4').click()" style="margin-top:10px;">
-      <div class="upload-btn" id="label4">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <span>健保核價資料</span>
-      </div>
-      <input type="file" id="file4" accept="image/*" capture="environment" style="display:none" onchange="previewFile(this,'label4','prev4')" />
-      <img id="prev4" style="display:none;width:100%;border-radius:8px;margin-top:8px;max-height:180px;object-fit:cover;" />
-    </div>
-
-    <div class="hint" style="margin-top:12px;">＊若檢附不完整，不予收受。</div>
-    <input type="hidden" name="附件說明" id="attachNote" value="廠商已上傳附件照片" />
+    <input type="hidden" name="附件說明" value="廠商將另行Email寄送附件至joanne032694@gmail.com" />
   </div>
 
   <div style="height:80px;"></div>
@@ -359,8 +332,19 @@
   <div class="success-title">申請已送出！</div>
   <div class="success-sub" id="successVendorText"></div>
   <div class="success-no" id="successNo"></div>
-  <div class="success-sub" style="font-size:12px;margin-top:4px;">負責人員將收到通知後會進行處理，勿催促。</div>
-  <button class="btn-new" onclick="resetForm()">送出新申請</button>
+
+  <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:16px;margin:16px 0;text-align:left;max-width:320px;">
+    <p style="font-size:14px;font-weight:600;color:#856404;margin-bottom:8px;">📎 請記得寄送附件！</p>
+    <p style="font-size:13px;color:#555;line-height:1.8;">請將以下文件拍照寄至：<br/>
+    <strong style="color:#1a5fa8;">joanne032694@gmail.com</strong><br/><br/>
+    ① 報價單<br/>② 衛部(署)許可證影本<br/>③ 仿單型錄<br/>④ 健保核價資料</p>
+    <p style="font-size:12px;color:#888;margin-top:8px;">信件主旨請註明申請編號</p>
+  </div>
+
+  <a id="emailBtn" href="#" style="display:block;background:#1a5fa8;color:white;text-align:center;padding:13px 24px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;max-width:280px;margin:0 auto;">
+    📧 點此開啟 Email 寄附件
+  </a>
+  <button class="btn-new" onclick="resetForm()" style="margin-top:12px;">送出新申請</button>
 </div>
 
 <!-- Loading -->
@@ -449,6 +433,10 @@
       s.style.display = 'flex';
       document.getElementById('successVendorText').textContent = vendor + ' 的申請已收到';
       document.getElementById('successNo').textContent = '申請編號：' + appNo;
+      // 設定 Email 按鈕
+      const subject = encodeURIComponent('【衛材申請附件】' + appNo + ' - ' + vendor);
+      const body = encodeURIComponent('申請編號：' + appNo + '\n廠商：' + vendor + '\n\n請查收附件照片（報價單、許可證影本、仿單型錄、健保核價資料）');
+      document.getElementById('emailBtn').href = 'mailto:joanne032694@gmail.com?subject=' + subject + '&body=' + body;
       localStorage.removeItem('draft_v2');
     })
     .catch(() => {
