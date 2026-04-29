@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="theme-color" content="#1a5fa8" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="衛材申請" />
+<link rel="manifest" href="manifest.json" />
+<title>衛材申請單</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif; background: #f2f4f7; color: #1a1a2e; }
+  .topbar { background: #1a5fa8; color: white; padding: 14px 16px; text-align: center; font-size: 17px; font-weight: 600; letter-spacing: 2px; position: sticky; top: 0; z-index: 100; }
+  .topbar small { display: block; font-size: 11px; font-weight: 400; opacity: 0.8; margin-top: 2px; }
+  .sec { background: white; margin: 8px 0; padding: 14px 16px; border-top: 1px solid #e8ecf0; border-bottom: 1px solid #e8ecf0; }
+  .sec-hd { font-size: 11px; color: #1a5fa8; font-weight: 700; letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+  .sec-hd::before { content: ''; display: inline-block; width: 3px; height: 12px; background: #1a5fa8; border-radius: 2px; }
+  .fl { margin-bottom: 12px; }
+  .fl:last-child { margin-bottom: 0; }
+  .fl > span.field-label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 500; }
+  input[type=text], input[type=date], input[type=tel], input[type=email], select, textarea {
+    width: 100%; border: 1px solid #dde2e8; border-radius: 8px;
+    padding: 10px 12px; font-size: 14px; background: #fff; color: #1a1a2e;
+    -webkit-appearance: none; appearance: none; outline: none;
+    transition: border-color 0.15s; font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #1a5fa8; }
+  textarea { resize: none; line-height: 1.6; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rg { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .ri { display: flex; align-items: center; gap: 5px; font-size: 14px; cursor: pointer; }
+  .ri input { accent-color: #1a5fa8; width: 16px; height: 16px; }
+  .ci { display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 5px 0; cursor: pointer; }
+  .ci input[type=checkbox] { accent-color: #1a5fa8; width: 16px; height: 16px; flex-shrink: 0; }
+  .ci-locked { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 10px 12px; border-radius: 8px; background: #eef4fc; border: 1px solid #b5d4f4; color: #0c447c; margin-top: 6px; }
+  .ci-locked input { accent-color: #1a5fa8; width: 16px; height: 16px; flex-shrink: 0; }
+  .lock-badge { font-size: 10px; background: #1a5fa8; color: white; border-radius: 4px; padding: 2px 7px; margin-left: auto; white-space: nowrap; }
+  .sub { margin-left: 22px; margin-top: 8px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .hint { font-size: 11px; color: #c0392b; margin-top: 10px; line-height: 1.6; padding: 10px 12px; background: #fff5f5; border-radius: 8px; border: 1px solid #f5c6c6; }
+  .required { color: #e53935; margin-left: 2px; }
+  .inline-sm { border: 1px solid #dde2e8; border-radius: 8px; padding: 8px 10px; font-size: 13px; background: white; color: #1a1a2e; outline: none; font-family: inherit; }
+  .bottom { padding: 12px 16px; background: white; border-top: 1px solid #e8ecf0; display: flex; gap: 10px; position: sticky; bottom: 0; z-index: 100; }
+  .btn-main { flex: 1; background: #1a5fa8; color: white; border: none; border-radius: 10px; padding: 14px; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 1px; }
+  .btn-main:active { background: #1550a0; }
+  .btn-main:disabled { background: #90adc8; cursor: not-allowed; }
+  .btn-sec { background: #f2f4f7; color: #555; border: 1px solid #dde2e8; border-radius: 10px; padding: 14px 16px; font-size: 14px; cursor: pointer; }
+  #successScreen { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; background: white; }
+  .success-icon { width: 80px; height: 80px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .success-icon svg { width: 40px; height: 40px; stroke: #2e7d32; }
+  .success-title { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .success-sub { font-size: 14px; color: #666; line-height: 1.7; }
+  .success-no { font-size: 13px; background: #eef4fc; color: #1a5fa8; padding: 8px 16px; border-radius: 8px; display: inline-block; margin: 12px 0 24px; font-weight: 600; }
+  .btn-new { background: #1a5fa8; color: white; border: none; border-radius: 10px; padding: 14px 32px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 16px; }
+  #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
+  .spinner { width: 40px; height: 40px; border: 3px solid #dde2e8; border-top-color: #1a5fa8; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loadingOverlay p { margin-top: 14px; font-size: 14px; color: #666; }
+</style>
+</head>
+<body>
+
+<!-- ★ Netlify Forms 關鍵：加上 data-netlify="true" -->
+<form name="衛材申請單" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="mainForm">
+  <input type="hidden" name="form-name" value="衛材申請單" />
+  <input type="hidden" name="申請編號" id="appNo" />
+  <input type="hidden" name="送出時間" id="submitTime" />
+  <p style="display:none;"><input name="bot-field" /></p>
+
+  <div class="topbar">
+    衛材申請單
+    <small>廠商專用填報系統</small>
+  </div>
+
+  <!-- 廠商資訊 -->
+  <div class="sec">
+    <div class="sec-hd">廠商資訊</div>
+    <div class="fl">
+      <span class="field-label">廠商中文名稱 <span class="required">*</span></span>
+      <input type="text" name="廠商中文名稱" id="vendorName" placeholder="請輸入貴公司中文名稱" required />
+    </div>
+    <div class="fl">
+      <span class="field-label">聯絡人姓名</span>
+      <input type="text" name="聯絡人" placeholder="請輸入聯絡人姓名" />
+    </div>
+    <div class="fl">
+      <span class="field-label">聯絡電話</span>
+      <input type="tel" name="聯絡電話" placeholder="0912-345-678" />
+    </div>
+    <div class="row2">
+      <div class="fl">
+        <span class="field-label">申請日期</span>
+        <input type="date" name="申請日期" id="applyDate" />
+      </div>
+      <div class="fl">
+        <span class="field-label">預定日期</span>
+        <input type="date" name="預定日期" />
+      </div>
+    </div>
+  </div>
+
+  <!-- 申請事項 -->
+  <div class="sec">
+    <div class="sec-hd">申請事項</div>
+    <div class="rg">
+      <label class="ri"><input type="radio" name="申請事項" value="醫衛材新品申請單" /> 醫衛材新品申請單</label>
+      <label class="ri"><input type="radio" name="申請事項" value="醫衛材公告停用恢復申請單" /> 醫衛材公告停用恢復申請單</label>
+    </div>
+  </div>
+
+  <!-- 產品資訊 -->
+  <div class="sec">
+    <div class="sec-hd">產品資訊</div>
+    <div class="fl">
+      <span class="field-label">中文品名 <span class="required">*</span></span>
+      <input type="text" name="中文品名" id="productName" placeholder="請輸入產品完整中文名稱" required />
+    </div>
+    <div class="row2">
+      <div class="fl">
+        <span class="field-label">規格</span>
+        <input type="text" name="規格" placeholder="如附件" />
+      </div>
+      <div class="fl">
+        <span class="field-label">型號</span>
+        <input type="text" name="型號" placeholder="如附件" />
+      </div>
+    </div>
+    <div class="fl">
+      <span class="field-label">廠牌、廠商</span>
+      <input type="text" name="廠牌廠商" placeholder="請輸入廠牌名稱" />
+    </div>
+    <div class="row2">
+      <div class="fl">
+        <span class="field-label">產地</span>
+        <div class="rg">
+          <label class="ri"><input type="radio" name="產地" value="國產" /> 國產</label>
+          <label class="ri"><input type="radio" name="產地" value="進口" /> 進口</label>
+        </div>
+        <input type="text" name="產地國家" placeholder="國家（進口請填）" style="margin-top:8px;" />
+      </div>
+      <div class="fl">
+        <span class="field-label">用量評估</span>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+          <input type="text" name="用量數量" placeholder="數量" class="inline-sm" style="width:60px;" />
+          <select name="用量單位" class="inline-sm" style="flex:1;">
+            <option value="">單位</option>
+            <option>EA</option><option>包</option><option>組</option><option>盒</option>
+          </select>
+        </div>
+        <div class="rg" style="margin-top:8px;">
+          <label class="ri"><input type="radio" name="用量週期" value="月" /> 月</label>
+          <label class="ri"><input type="radio" name="用量週期" value="季" /> 季</label>
+          <label class="ri"><input type="radio" name="用量週期" value="年" /> 年</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 法規資訊 -->
+  <div class="sec">
+    <div class="sec-hd">法規資訊</div>
+    <div class="fl">
+      <span class="field-label">醫療器材等級</span>
+      <div class="rg">
+        <label class="ri"><input type="radio" name="醫療器材等級" value="第一等級" /> 第一等級</label>
+        <label class="ri"><input type="radio" name="醫療器材等級" value="第二等級" /> 第二等級</label>
+        <label class="ri"><input type="radio" name="醫療器材等級" value="第三等級" /> 第三等級</label>
+      </div>
+    </div>
+    <div class="fl">
+      <span class="field-label">衛部(署)許可證字號</span>
+      <label class="ci">
+        <input type="checkbox" id="hasCert" onchange="toggleEl('certNoWrap', this.checked)" />
+        醫療器材許可證
+      </label>
+      <div id="certNoWrap" style="display:none; margin-top:8px;">
+        <input type="text" name="許可證字號" placeholder="請輸入許可證字號" />
+      </div>
+      <label class="ci" style="margin-top:4px;">
+        <input type="checkbox" name="免列管" value="是" /> 免列管
+      </label>
+    </div>
+  </div>
+
+  <!-- 使用資訊 -->
+  <div class="sec">
+    <div class="sec-hd">使用資訊</div>
+    <div class="fl">
+      <span class="field-label">使用性質</span>
+      <div class="rg">
+        <label class="ri"><input type="radio" name="使用性質" value="共通性醫衛材" /> 共通性醫衛材</label>
+        <label class="ri"><input type="radio" name="使用性質" value="專科使用" /> 專科使用</label>
+        <label class="ri"><input type="radio" name="使用性質" value="儀器設備耗材" /> 儀器設備耗材</label>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+        <span style="font-size:13px;color:#666;">科別：</span>
+        <input type="text" name="科別" placeholder="科別" class="inline-sm" style="width:140px;" />
+      </div>
+    </div>
+    <div class="fl">
+      <span class="field-label">使用原則</span>
+      <div class="rg">
+        <label class="ri"><input type="radio" name="使用原則" value="不可重複使用" /> 不可重複使用</label>
+        <label class="ri"><input type="radio" name="使用原則" value="可重複使用" /> 可重複使用</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 處置手術 -->
+  <div class="sec">
+    <div class="sec-hd">處置手術 / 檢查</div>
+    <label class="ci">
+      <input type="checkbox" id="hasOp" onchange="toggleEl('opNameWrap', this.checked)" />
+      名稱
+    </label>
+    <div id="opNameWrap" class="sub" style="display:none;">
+      <input type="text" name="處置手術名稱" placeholder="請輸入手術/處置名稱" />
+    </div>
+    <label class="ci" style="margin-top:6px;">
+      <input type="checkbox" id="hasCode" onchange="toggleEl('opCodeWrap', this.checked)" />
+      院內碼/健保支付碼
+    </label>
+    <div id="opCodeWrap" class="sub" style="display:none;">
+      <input type="text" name="院內碼健保支付碼" placeholder="請輸入代碼" />
+    </div>
+    <label class="ci" style="margin-top:6px;">
+      <input type="checkbox" name="處置不適用" value="是" /> 不適用
+    </label>
+  </div>
+
+  <!-- 給付方式 -->
+  <div class="sec">
+    <div class="sec-hd">給付方式</div>
+    <label class="ci"><input type="checkbox" name="給付_健保碼" value="是" /> 健保碼</label>
+    <label class="ci"><input type="checkbox" name="給付_健保自費代碼" value="是" /> 健保自費項目代碼</label>
+    <label class="ci"><input type="checkbox" name="給付_健保不給付" value="是" id="cb_no_nhi" onchange="handlePayment()" /> 健保不給付</label>
+    <div id="lockedRow" style="display:none;">
+      <div class="ci-locked">
+        <input type="checkbox" name="給付_依院方訂定" value="是" checked disabled />
+        <span>自費單價、自付差額單價同意依院方訂定原則</span>
+        <span class="lock-badge">院方規定</span>
+      </div>
+      <label class="ci" style="margin-top:6px;"><input type="checkbox" name="給付_建議自費單價" value="是" /> 建議自費單價</label>
+      <label class="ci"><input type="checkbox" name="給付_建議自付差額" value="是" /> 建議自付差額單價</label>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+      <span style="font-size:13px;color:#666;white-space:nowrap;">處置(手術)內含：</span>
+      <input type="text" name="處置手術內含" placeholder="說明" class="inline-sm" style="flex:1;" />
+    </div>
+  </div>
+
+  <!-- 同儕使用 -->
+  <div class="sec">
+    <div class="sec-hd">同儕使用</div>
+    <div class="grid2">
+      <label class="ci"><input type="checkbox" name="同儕_無" value="無" /> 無</label>
+      <label class="ci"><input type="checkbox" name="同儕_台大" value="台大" /> 台大</label>
+      <label class="ci"><input type="checkbox" name="同儕_榮總" value="榮總" /> 榮總</label>
+      <label class="ci"><input type="checkbox" name="同儕_三總" value="三總" /> 三總</label>
+      <label class="ci"><input type="checkbox" name="同儕_長庚" value="長庚" /> 長庚</label>
+      <label class="ci"><input type="checkbox" name="同儕_馬偕" value="馬偕" /> 馬偕</label>
+      <label class="ci"><input type="checkbox" name="同儕_新光" value="新光" /> 新光</label>
+      <label class="ci"><input type="checkbox" name="同儕_亞東" value="亞東" /> 亞東</label>
+      <label class="ci"><input type="checkbox" name="同儕_雙和" value="雙和" /> 雙和</label>
+      <label class="ci"><input type="checkbox" name="同儕_其他" value="其他" /> 其他</label>
+    </div>
+  </div>
+
+  <!-- 同類品項 -->
+  <div class="sec">
+    <div class="sec-hd">同類品項</div>
+    <label class="ci"><input type="checkbox" name="無同質品項" value="是" /> 無同質品項</label>
+    <label class="ci" style="margin-top:4px;">
+      <input type="checkbox" id="hasSimilar" onchange="toggleEl('similarCodeWrap', this.checked)" />
+      本科已有同類品項院內碼
+    </label>
+    <div id="similarCodeWrap" class="sub" style="display:none;">
+      <input type="text" name="同類品項院內碼" placeholder="院內碼" />
+    </div>
+    <label class="ci" style="margin-top:4px;">
+      <input type="checkbox" id="delSimilar" onchange="toggleEl('delCodeWrap', this.checked)" />
+      本案審核通過後同意刪除品項院內碼
+    </label>
+    <div id="delCodeWrap" class="sub" style="display:none;">
+      <input type="text" name="刪除品項院內碼" placeholder="院內碼" />
+    </div>
+  </div>
+
+  <!-- 申請理由 -->
+  <div class="sec">
+    <div class="sec-hd">申請理由說明 <span class="required">*</span></div>
+    <textarea name="申請理由說明" id="reason" rows="5" placeholder="請說明申請理由，包含使用目的、病人需求、預計使用量等..." required></textarea>
+  </div>
+
+  <!-- 附件提醒（Netlify Forms 免費版不支援附件，請廠商另行 Email） -->
+  <div class="sec">
+    <div class="sec-hd">附件說明</div>
+    <div class="hint">
+      ＊請另行將以下文件寄至採購部門 Email：<br/>
+      ① 報價單　② 衛部(署)許可證影本　③ 仿單型錄<br/>
+      ④ 健保核價資料或健保不給付證明<br/>
+      若檢附不完整，不予收受。
+    </div>
+    <div style="margin-top:10px;">
+      <span class="field-label">附件備註</span>
+      <input type="text" name="附件備註" placeholder="已寄送附件說明（選填）" />
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+
+  <div class="bottom">
+    <button type="button" class="btn-sec" onclick="saveDraft()">暫存</button>
+    <button type="submit" class="btn-main" id="submitBtn">送出申請</button>
+  </div>
+</form>
+
+<!-- 送出成功畫面 -->
+<div id="successScreen">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <div class="success-title">申請已送出！</div>
+  <div class="success-sub" id="successVendorText"></div>
+  <div class="success-no" id="successNo"></div>
+  <div class="success-sub" style="font-size:12px;margin-top:4px;">採購人員將收到通知並盡速審核。</div>
+  <button class="btn-new" onclick="resetForm()">送出新申請</button>
+</div>
+
+<!-- Loading -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <p>送出中，請稍候...</p>
+</div>
+
+<script>
+  document.getElementById('applyDate').valueAsDate = new Date();
+
+  function toggleEl(id, show) {
+    document.getElementById(id).style.display = show ? 'block' : 'none';
+  }
+
+  function handlePayment() {
+    const checked = document.getElementById('cb_no_nhi').checked;
+    document.getElementById('lockedRow').style.display = checked ? 'block' : 'none';
+  }
+
+  function saveDraft() {
+    const data = {};
+    new FormData(document.getElementById('mainForm')).forEach((v, k) => { data[k] = v; });
+    localStorage.setItem('draft_v2', JSON.stringify(data));
+    alert('暫存成功！下次開啟會詢問是否載入。');
+  }
+
+  // 載入暫存
+  window.addEventListener('load', () => {
+    const draft = localStorage.getItem('draft_v2');
+    if (draft) {
+      try {
+        const d = JSON.parse(draft);
+        if (d['廠商中文名稱'] && confirm('發現上次暫存資料，是否載入？')) {
+          if (d['廠商中文名稱']) document.querySelector('[name="廠商中文名稱"]').value = d['廠商中文名稱'];
+          if (d['聯絡人']) document.querySelector('[name="聯絡人"]').value = d['聯絡人'];
+          if (d['中文品名']) document.querySelector('[name="中文品名"]').value = d['中文品名'];
+          if (d['申請理由說明']) document.querySelector('[name="申請理由說明"]').value = d['申請理由說明'];
+        }
+      } catch(e) {}
+    }
+  });
+
+  // 表單送出
+  const form = document.getElementById('mainForm');
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const vendor = document.getElementById('vendorName').value.trim();
+    const product = document.getElementById('productName').value.trim();
+    const reason = document.getElementById('reason').value.trim();
+    if (!vendor) { alert('請填寫廠商中文名稱'); return; }
+    if (!product) { alert('請填寫產品中文品名'); return; }
+    if (!reason) { alert('請填寫申請理由說明'); return; }
+
+    const appNo = 'NMN' + new Date().getFullYear() + String(Date.now()).slice(-6);
+    document.getElementById('appNo').value = appNo;
+    document.getElementById('submitTime').value = new Date().toLocaleString('zh-TW');
+
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.getElementById('submitBtn').disabled = true;
+
+    // Netlify Forms 送出
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(new FormData(form)).toString()
+    })
+    .then(() => {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('mainForm').style.display = 'none';
+      const s = document.getElementById('successScreen');
+      s.style.display = 'flex';
+      document.getElementById('successVendorText').textContent = vendor + ' 的申請已收到';
+      document.getElementById('successNo').textContent = '申請編號：' + appNo;
+      localStorage.removeItem('draft_v2');
+    })
+    .catch(() => {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+      alert('送出失敗，請確認網路連線後再試。');
+    });
+  });
+
+  function resetForm() {
+    form.reset();
+    document.getElementById('applyDate').valueAsDate = new Date();
+    document.getElementById('lockedRow').style.display = 'none';
+    ['certNoWrap','opNameWrap','opCodeWrap','similarCodeWrap','delCodeWrap'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    document.getElementById('mainForm').style.display = 'block';
+    document.getElementById('successScreen').style.display = 'none';
+    document.getElementById('submitBtn').disabled = false;
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>

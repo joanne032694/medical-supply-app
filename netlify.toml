@@ -1,0 +1,11 @@
+# Netlify 設定檔
+# 此檔案放在專案根目錄，Netlify 部署時會自動讀取
+
+[build]
+  publish = "."
+
+# 表單送出後跳轉到感謝頁（由 JS 處理，此設定備用）
+[[redirects]]
+  from = "/thank-you"
+  to = "/index.html"
+  status = 200
