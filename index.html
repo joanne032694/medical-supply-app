@@ -63,11 +63,9 @@
 <body>
 
 <!-- ★ Netlify Forms 關鍵：加上 data-netlify="true" -->
-<form name="衛材申請單" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="mainForm">
-  <input type="hidden" name="form-name" value="衛材申請單" />
+<form action="https://formspree.io/f/mykogbab" method="POST" id="mainForm">
   <input type="hidden" name="申請編號" id="appNo" />
   <input type="hidden" name="送出時間" id="submitTime" />
-  <p style="display:none;"><input name="bot-field" /></p>
 
   <div class="topbar">
     衛材申請單
@@ -418,10 +416,10 @@
     document.getElementById('loadingOverlay').style.display = 'flex';
     document.getElementById('submitBtn').disabled = true;
 
-    // Netlify Forms 送出
-    fetch('/', {
+    // Formspree 送出
+    fetch('https://formspree.io/f/mykogbab', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams(new FormData(form)).toString()
     })
     .then(() => {
