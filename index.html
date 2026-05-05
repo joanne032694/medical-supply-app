@@ -232,7 +232,10 @@
   <div class="sec">
     <div class="sec-hd">給付方式 <span class="required">*</span></div>
     <label class="ci"><input type="checkbox" name="給付_健保碼" value="是" /> 健保碼</label>
-    <label class="ci"><input type="checkbox" name="給付_健保自費代碼" value="是" /> 健保自費項目代碼</label>
+    <label class="ci"><input type="checkbox" name="給付_健保自費代碼" value="是" id="cb_self_code" onchange="toggleEl('selfCodeWrap', this.checked)" /> 健保自費項目代碼</label>
+    <div id="selfCodeWrap" class="sub" style="display:none;">
+      <input type="text" name="健保自費項目代碼" placeholder="請輸入健保自費項目代碼" />
+    </div>
     <label class="ci"><input type="checkbox" name="給付_健保不給付" value="是" id="cb_no_nhi" onchange="handlePayment()" /> 健保不給付</label>
     <div id="lockedRow" style="display:none;">
       <div class="ci-locked">
@@ -503,7 +506,7 @@
     form.reset();
     document.getElementById('applyDate').valueAsDate = new Date();
     document.getElementById('lockedRow').style.display = 'none';
-    ['certNoWrap','opNameWrap','opCodeWrap','similarCodeWrap','delCodeWrap'].forEach(id => {
+    ['certNoWrap','opNameWrap','opCodeWrap','similarCodeWrap','delCodeWrap','selfCodeWrap'].forEach(id => {
       document.getElementById(id).style.display = 'none';
     });
     document.getElementById('mainForm').style.display = 'block';
