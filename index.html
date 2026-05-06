@@ -7,7 +7,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="衛材申請" />
-<link rel="manifest" href="manifest.json" />
 <title>衛材申請單</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,8 +61,11 @@
 </head>
 <body>
 
-<!-- ★ Netlify Forms 關鍵：加上 data-netlify="true" -->
-<form action="https://formspree.io/f/mykogbab" method="POST" id="mainForm">
+<form id="mainForm">
+  <!-- Web3Forms hidden fields -->
+  <input type="hidden" name="access_key" value="414f56c9-a3aa-490a-90ca-283e2ab81311" />
+  <input type="hidden" name="subject" id="emailSubject" value="衛材申請單 - 新申請" />
+  <input type="hidden" name="from_name" value="衛材申請系統" />
   <input type="hidden" name="申請編號" id="appNo" />
   <input type="hidden" name="送出時間" id="submitTime" />
 
@@ -317,7 +319,7 @@
 
   <div class="bottom">
     <button type="button" class="btn-sec" onclick="saveDraft()">暫存</button>
-    <button type="submit" class="btn-main" id="submitBtn">送出申請</button>
+    <button type="button" class="btn-main" id="submitBtn" onclick="submitForm()">送出申請</button>
   </div>
 </form>
 
@@ -355,19 +357,6 @@
 <script>
   document.getElementById('applyDate').valueAsDate = new Date();
 
-  function previewFile(input, labelId, prevId) {
-    const file = input.files[0];
-    if (!file) return;
-    const label = document.getElementById(labelId);
-    const prev = document.getElementById(prevId);
-    const span = label.querySelector('span');
-    label.classList.add('done');
-    span.textContent = '✓ ' + span.textContent.replace('✓ ', '') + '（已上傳）';
-    const reader = new FileReader();
-    reader.onload = e => { prev.src = e.target.result; prev.style.display = 'block'; };
-    reader.readAsDataURL(file);
-  }
-
   function toggleEl(id, show) {
     document.getElementById(id).style.display = show ? 'block' : 'none';
   }
@@ -400,10 +389,8 @@
     }
   });
 
-  // 表單送出
-  const form = document.getElementById('mainForm');
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
+  function submitForm() {
+    const form = document.getElementById('mainForm');
 
     // ── 文字欄位必填 ──
     const textChecks = [
@@ -421,24 +408,17 @@
         alert(msg); if(el){el.focus(); el.scrollIntoView({behavior:'smooth',block:'center'});} return;
       }
     }
-    // 廠牌廠商
     if (!document.querySelector('[name="廠牌廠商"]').value.trim()) { alert('請填寫廠牌、廠商'); return; }
-    // 規格
     if (!document.querySelector('[name="規格"]').value.trim()) { alert('請填寫規格'); return; }
-    // 型號
     if (!document.querySelector('[name="型號"]').value.trim()) { alert('請填寫型號'); return; }
-    // 用量
     if (!document.getElementById('usageQty').value.trim()) { alert('請填寫用量數量'); return; }
-    // 科別
     if (!document.querySelector('[name="科別"]').value.trim()) { alert('請填寫科別'); return; }
-    // 衛部許可證 - 勾選後需填字號
     if (!document.getElementById('hasCert').checked && !document.querySelector('input[name="免列管"]')?.checked) {
       alert('請勾選醫療器材許可證或免列管'); return;
     }
     if (document.getElementById('hasCert').checked && !document.querySelector('[name="許可證字號"]').value.trim()) {
       alert('請填寫衛部(署)許可證字號'); return;
     }
-    // 處置手術 - 不適用 OR 名稱+院內碼都必填
     const hasOpNA = document.querySelector('input[name="處置不適用"]')?.checked;
     if (!hasOpNA) {
       if (!document.getElementById('hasOp').checked || !document.querySelector('[name="處置手術名稱"]').value.trim()) {
@@ -448,62 +428,61 @@
         alert('請勾選並填寫院內碼／健保支付碼，或勾選「不適用」'); return;
       }
     }
-
-    // ── Radio 必填 ──
-    if (!document.querySelector('input[name="申請事項"]:checked'))   { alert('請選擇申請事項'); return; }
-    if (!document.querySelector('input[name="產地"]:checked'))       { alert('請選擇產地（國產或進口）'); return; }
-    if (!document.querySelector('input[name="用量週期"]:checked'))   { alert('請選擇用量週期（月/季/年）'); return; }
-    if (!document.querySelector('input[name="醫療器材等級"]:checked')){ alert('請選擇醫療器材等級'); return; }
-    if (!document.querySelector('input[name="使用性質"]:checked'))   { alert('請選擇使用性質'); return; }
-    if (!document.querySelector('input[name="使用原則"]:checked'))   { alert('請選擇使用原則'); return; }
-
-    // ── Checkbox 必填 ──
-    if (!document.querySelector('input[name^="給付_"]:checked'))     { alert('請選擇給付方式（至少勾選一項）'); return; }
-    if (!document.querySelector('input[name^="同儕_"]:checked'))     { alert('請選擇同儕使用（至少勾選一項）'); return; }
+    if (!document.querySelector('input[name="申請事項"]:checked'))    { alert('請選擇申請事項'); return; }
+    if (!document.querySelector('input[name="產地"]:checked'))        { alert('請選擇產地（國產或進口）'); return; }
+    if (!document.querySelector('input[name="用量週期"]:checked'))    { alert('請選擇用量週期（月/季/年）'); return; }
+    if (!document.querySelector('input[name="醫療器材等級"]:checked')) { alert('請選擇醫療器材等級'); return; }
+    if (!document.querySelector('input[name="使用性質"]:checked'))    { alert('請選擇使用性質'); return; }
+    if (!document.querySelector('input[name="使用原則"]:checked'))    { alert('請選擇使用原則'); return; }
+    if (!document.querySelector('input[name^="給付_"]:checked'))      { alert('請選擇給付方式（至少勾選一項）'); return; }
+    if (!document.querySelector('input[name^="同儕_"]:checked'))      { alert('請選擇同儕使用（至少勾選一項）'); return; }
     const noSim = document.querySelector('input[name="無同質品項"]')?.checked;
     const hasSim = document.getElementById('hasSimilar').checked;
     const delSim = document.getElementById('delSimilar').checked;
     if (!noSim && !hasSim && !delSim) { alert('請選擇同類品項（無同質品項或填寫院內碼）'); return; }
 
     const vendor = document.getElementById('vendorName').value.trim();
-    const product = document.getElementById('productName').value.trim();
-    const reason = document.getElementById('reason').value.trim();
-
     const appNo = 'NMN' + new Date().getFullYear() + String(Date.now()).slice(-6);
     document.getElementById('appNo').value = appNo;
     document.getElementById('submitTime').value = new Date().toLocaleString('zh-TW');
+    document.getElementById('emailSubject').value = '【衛材申請單】' + appNo + ' - ' + vendor;
 
     document.getElementById('loadingOverlay').style.display = 'flex';
     document.getElementById('submitBtn').disabled = true;
 
-    // Formspree 送出
-    fetch('https://formspree.io/f/mykogbab', {
+    // Web3Forms 送出
+    const formData = new FormData(form);
+    fetch('https://api.web3forms.com/submit', {
       method: 'POST',
-      headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(new FormData(form)).toString()
+      body: formData
     })
-    .then(() => {
+    .then(res => res.json())
+    .then(data => {
       document.getElementById('loadingOverlay').style.display = 'none';
-      document.getElementById('mainForm').style.display = 'none';
-      const s = document.getElementById('successScreen');
-      s.style.display = 'flex';
-      document.getElementById('successVendorText').textContent = vendor + ' 的申請已收到';
-      document.getElementById('successNo').textContent = '申請編號：' + appNo;
-      // 設定 Email 按鈕
-      const subject = encodeURIComponent('【衛材申請附件】' + appNo + ' - ' + vendor);
-      const body = encodeURIComponent('申請編號：' + appNo + '\n廠商：' + vendor + '\n\n請查收附件照片（報價單、許可證影本、仿單型錄、健保核價資料）');
-      document.getElementById('emailBtn').href = 'mailto:joanne032694@gmail.com?subject=' + subject + '&body=' + body;
-      localStorage.removeItem('draft_v2');
+      if (data.success) {
+        document.getElementById('mainForm').style.display = 'none';
+        const s = document.getElementById('successScreen');
+        s.style.display = 'flex';
+        document.getElementById('successVendorText').textContent = vendor + ' 的申請已收到';
+        document.getElementById('successNo').textContent = '申請編號：' + appNo;
+        const subject = encodeURIComponent('【衛材申請附件】' + appNo + ' - ' + vendor);
+        const body = encodeURIComponent('申請編號：' + appNo + '\n廠商：' + vendor + '\n\n請查收附件照片（報價單、許可證影本、仿單型錄、健保核價資料）');
+        document.getElementById('emailBtn').href = 'mailto:joanne032694@gmail.com?subject=' + subject + '&body=' + body;
+        localStorage.removeItem('draft_v2');
+      } else {
+        document.getElementById('submitBtn').disabled = false;
+        alert('送出失敗：' + (data.message || '請稍後再試'));
+      }
     })
     .catch(() => {
       document.getElementById('loadingOverlay').style.display = 'none';
       document.getElementById('submitBtn').disabled = false;
       alert('送出失敗，請確認網路連線後再試。');
     });
-  });
+  }
 
   function resetForm() {
-    form.reset();
+    document.getElementById('mainForm').reset();
     document.getElementById('applyDate').valueAsDate = new Date();
     document.getElementById('lockedRow').style.display = 'none';
     ['certNoWrap','opNameWrap','opCodeWrap','similarCodeWrap','delCodeWrap','selfCodeWrap'].forEach(id => {
