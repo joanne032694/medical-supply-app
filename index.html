@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="theme-color" content="#134e5e" />
+<title>衛材申請單</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif; background: #f1f8f2; color: #1b3a2a; font-size: 16px; }
+  .topbar { background: linear-gradient(135deg, #134e5e, #71b280); color: white; padding: 16px; text-align: center; font-size: 20px; font-weight: 700; letter-spacing: 2px; position: sticky; top: 0; z-index: 100; }
+  .topbar small { display: block; font-size: 13px; font-weight: 400; opacity: 0.9; margin-top: 4px; }
+  .sec { background: white; margin: 8px 0; padding: 16px; border-top: 2px solid #c8e6c9; border-bottom: 2px solid #c8e6c9; }
+  .sec-hd { font-size: 15px; color: #2e7d32; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .sec-hd::before { content: ''; display: inline-block; width: 8px; height: 8px; background: #71b280; border-radius: 50%; }
+  .fl { margin-bottom: 14px; }
+  .fl:last-child { margin-bottom: 0; }
+  .fl > span.field-label { display: block; font-size: 14px; color: #888; margin-bottom: 6px; font-weight: 600; }
+  input[type=text], input[type=date], input[type=tel], select, textarea {
+    width: 100%; border: 2px solid #a5d6a7; border-radius: 12px;
+    padding: 12px 14px; font-size: 16px; background: #f9fdf9; color: #1b3a2a;
+    -webkit-appearance: none; appearance: none; outline: none;
+    transition: border-color 0.15s; font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #2e7d32; }
+  textarea { resize: none; line-height: 1.7; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rg { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+  .ri { display: flex; align-items: center; gap: 6px; font-size: 16px; cursor: pointer; color: #444; }
+  .ri input { accent-color: #2e7d32; width: 18px; height: 18px; }
+  .ci { display: flex; align-items: center; gap: 10px; font-size: 16px; padding: 6px 0; cursor: pointer; color: #444; }
+  .ci input[type=checkbox] { accent-color: #2e7d32; width: 18px; height: 18px; flex-shrink: 0; }
+  .ci-locked { display: flex; align-items: center; gap: 8px; font-size: 15px; padding: 12px 14px; border-radius: 12px; background: #f1f8f2; border: 2px solid #a5d6a7; color: #1b5e20; margin-top: 8px; }
+  .ci-locked input { accent-color: #2e7d32; width: 18px; height: 18px; flex-shrink: 0; }
+  .lock-badge { font-size: 11px; background: #2e7d32; color: white; border-radius: 6px; padding: 3px 8px; margin-left: auto; white-space: nowrap; font-weight: 600; }
+  .sub { margin-left: 24px; margin-top: 8px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .required { color: #e53935; margin-left: 2px; }
+  .inline-sm { border: 2px solid #a5d6a7; border-radius: 10px; padding: 10px 12px; font-size: 15px; background: #f9fdf9; color: #1b3a2a; outline: none; font-family: inherit; }
+  .bottom { padding: 14px 16px; background: white; border-top: 2px solid #c8e6c9; display: flex; gap: 10px; position: sticky; bottom: 0; z-index: 100; }
+  .btn-main { flex: 1; background: linear-gradient(135deg, #134e5e, #71b280); color: white; border: none; border-radius: 14px; padding: 16px; font-size: 17px; font-weight: 700; cursor: pointer; letter-spacing: 1px; }
+  .btn-main:active { opacity: 0.85; }
+  .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-sec { background: #f1f8f2; color: #2e7d32; border: 2px solid #a5d6a7; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 600; cursor: pointer; }
+  #successScreen { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; background: #f1f8f2; }
+  .success-icon { width: 90px; height: 90px; background: linear-gradient(135deg, #c8e6c9, #a5d6a7); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .success-icon svg { width: 45px; height: 45px; stroke: #1b5e20; }
+  .success-title { font-size: 26px; font-weight: 700; margin-bottom: 10px; color: #2e7d32; }
+  .success-sub { font-size: 16px; color: #555; line-height: 1.8; }
+  .success-no { font-size: 15px; background: #f1f8f2; color: #2e7d32; padding: 10px 18px; border-radius: 10px; display: inline-block; margin: 14px 0 24px; font-weight: 700; border: 2px solid #a5d6a7; }
+  .btn-new { background: linear-gradient(135deg, #134e5e, #71b280); color: white; border: none; border-radius: 14px; padding: 16px 36px; font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 16px; }
+  #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(241,248,242,0.95); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
+  .spinner { width: 44px; height: 44px; border: 4px solid #c8e6c9; border-top-color: #2e7d32; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loadingOverlay p { margin-top: 16px; font-size: 16px; color: #2e7d32; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<form id="mainForm">
+  <input type="hidden" name="access_key" value="414f56c9-a3aa-490a-90ca-283e2ab81311" />
+  <input type="hidden" name="subject" id="emailSubject" value="衛材申請單 - 新申請" />
+  <input type="hidden" name="from_name" value="衛材申請系統" />
+  <input type="hidden" name="message" id="hiddenMessage" />
+
+  <div class="topbar">
+    衛材申請單
+    <small>廠商專用填報系統</small>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">廠商資訊</div>
+    <div class="fl">
+      <span class="field-label">廠商中文名稱 <span class="required">*</span></span>
+      <input type="text" id="vendorName" placeholder="請輸入貴公司中文名稱" />
+    </div>
+    <div class="fl">
+      <span class="field-label">聯絡人姓名 <span class="required">*</span></span>
+      <input type="text" id="contactName" placeholder="請輸入聯絡人姓名" />
+    </div>
+    <div class="fl">
+      <span class="field-label">聯絡電話 <span class="required">*</span></span>
+      <input type="tel" id="contactPhone" placeholder="0912-345-678" />
+    </div>
+    <div class="row2">
+      <div class="fl">
+        <span class="field-label">申請日期 <span class="required">*</span></span>
+        <input type="date" id="applyDate" />
+      </div>
+      <div class="fl">
+        <span class="field-label">預定日期 <span class="required">*</span></span>
+        <input type="date" id="targetDate" />
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">申請事項 <span class="required">*</span></div>
+    <div class="rg">
+      <label class="ri"><input type="radio" name="apply_type" value="醫衛材新品申請單" /> 醫衛材新品申請單</label>
+      <label class="ri"><input type="radio" name="apply_type" value="醫衛材公告停用恢復申請單" /> 醫衛材公告停用恢復申請單</label>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">產品資訊</div>
+    <div class="fl">
+      <span class="field-label">中文品名 <span class="required">*</span></span>
+      <input type="text" id="productName" placeholder="請輸入產品完整中文名稱" />
+    </div>
+    <div class="row2">
+      <div class="fl">
+        <span class="field-label">規格 <span class="required">*</span></span>
+        <input type="text" id="spec" placeholder="如附件" />
+      </div>
+      <div class="fl">
+        <span class="field-label">型號 <span class="required">*</span></span>
+        <input type="text" id="model" placeholder="如附件" />
+      </div>
+    </div>
+    <div class="fl">
+      <span class="field-label">廠牌、廠商 <span class="required">*</span></span>
+      <input type="text" id="brand" placeholder="請輸入廠牌名稱" />
+    </div>
+    <div class="row2">
+      <div class="fl">
+        <span class="field-label">產地 <span class="required">*</span></span>
+        <div class="rg">
+          <label class="ri"><input type="radio" name="origin_type" value="國產" /> 國產</label>
+          <label class="ri"><input type="radio" name="origin_type" value="進口" /> 進口</label>
+        </div>
+        <input type="text" id="originCountry" placeholder="國家（進口請填）" style="margin-top:8px;" />
+      </div>
+      <div class="fl">
+        <span class="field-label">用量評估 <span class="required">*</span></span>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+          <input type="text" id="usageQty" placeholder="數量" class="inline-sm" style="width:60px;" />
+          <select id="usageUnit" class="inline-sm" style="flex:1;">
+            <option value="">單位</option>
+            <option>EA</option><option>包</option><option>組</option><option>盒</option>
+          </select>
+        </div>
+        <div class="rg" style="margin-top:8px;">
+          <label class="ri"><input type="radio" name="usage_cycle" value="月" /> 月</label>
+          <label class="ri"><input type="radio" name="usage_cycle" value="季" /> 季</label>
+          <label class="ri"><input type="radio" name="usage_cycle" value="年" /> 年</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">法規資訊 <span class="required">*</span></div>
+    <div class="fl">
+      <span class="field-label">醫療器材等級</span>
+      <div class="rg">
+        <label class="ri"><input type="radio" name="device_class" value="第一等級" /> 第一等級</label>
+        <label class="ri"><input type="radio" name="device_class" value="第二等級" /> 第二等級</label>
+        <label class="ri"><input type="radio" name="device_class" value="第三等級" /> 第三等級</label>
+      </div>
+    </div>
+    <div class="fl">
+      <span class="field-label">衛部(署)許可證字號 <span class="required">*</span></span>
+      <label class="ci">
+        <input type="checkbox" id="hasCert" onchange="toggleEl('certNoWrap', this.checked)" /> 醫療器材許可證
+      </label>
+      <div id="certNoWrap" style="display:none; margin-top:8px;">
+        <input type="text" id="certNo" placeholder="請輸入許可證字號" />
+      </div>
+      <label class="ci" style="margin-top:4px;">
+        <input type="checkbox" id="noRegister" /> 免列管
+      </label>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">使用資訊 <span class="required">*</span></div>
+    <div class="fl">
+      <span class="field-label">使用性質</span>
+      <div class="rg">
+        <label class="ri"><input type="radio" name="usage_type" value="共通性醫衛材" /> 共通性醫衛材</label>
+        <label class="ri"><input type="radio" name="usage_type" value="專科使用" /> 專科使用</label>
+        <label class="ri"><input type="radio" name="usage_type" value="儀器設備耗材" /> 儀器設備耗材</label>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+        <span style="font-size:13px;color:#666;">科別：<span class="required">*</span></span>
+        <input type="text" id="dept" placeholder="科別" class="inline-sm" style="width:140px;" />
+      </div>
+    </div>
+    <div class="fl">
+      <span class="field-label">使用原則</span>
+      <div class="rg">
+        <label class="ri"><input type="radio" name="reuse" value="不可重複使用" /> 不可重複使用</label>
+        <label class="ri"><input type="radio" name="reuse" value="可重複使用" /> 可重複使用</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">處置手術 / 檢查 <span class="required">*</span></div>
+    <label class="ci"><input type="checkbox" id="hasOp" onchange="toggleEl('opNameWrap', this.checked)" /> 名稱</label>
+    <div id="opNameWrap" class="sub" style="display:none;">
+      <input type="text" id="opName" placeholder="請輸入手術/處置名稱" />
+    </div>
+    <label class="ci" style="margin-top:6px;">
+      <input type="checkbox" id="hasCode" onchange="toggleEl('opCodeWrap', this.checked)" /> 院內碼/健保支付碼
+    </label>
+    <div id="opCodeWrap" class="sub" style="display:none;">
+      <input type="text" id="opCode" placeholder="請輸入代碼" />
+    </div>
+    <label class="ci" style="margin-top:6px;"><input type="checkbox" id="opNA" /> 不適用</label>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">給付方式 <span class="required">*</span></div>
+    <label class="ci"><input type="checkbox" id="pay_nhi" /> 健保碼</label>
+    <label class="ci"><input type="checkbox" id="pay_self_code" onchange="toggleEl('selfCodeWrap', this.checked)" /> 健保自費項目代碼</label>
+    <div id="selfCodeWrap" class="sub" style="display:none;">
+      <input type="text" id="selfCode" placeholder="請輸入健保自費項目代碼" />
+    </div>
+    <label class="ci"><input type="checkbox" id="pay_no_nhi" onchange="handlePayment()" /> 健保不給付</label>
+    <div id="lockedRow" style="display:none;">
+      <div class="ci-locked">
+        <input type="checkbox" checked disabled />
+        <span>自費單價、自付差額單價同意依院方訂定原則</span>
+        <span class="lock-badge">院方規定</span>
+      </div>
+      <label class="ci" style="margin-top:6px;"><input type="checkbox" id="pay_suggest_self" /> 建議自費單價</label>
+      <label class="ci"><input type="checkbox" id="pay_suggest_diff" /> 建議自付差額單價</label>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+      <span style="font-size:13px;color:#666;white-space:nowrap;">處置(手術)內含：</span>
+      <input type="text" id="payInclude" placeholder="說明" class="inline-sm" style="flex:1;" />
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">同儕使用 <span class="required">*</span></div>
+    <div class="grid2">
+      <label class="ci"><input type="checkbox" id="peer_none" /> 無</label>
+      <label class="ci"><input type="checkbox" id="peer_ntu" /> 台大</label>
+      <label class="ci"><input type="checkbox" id="peer_vgh" /> 榮總</label>
+      <label class="ci"><input type="checkbox" id="peer_tri" /> 三總</label>
+      <label class="ci"><input type="checkbox" id="peer_cgh" /> 長庚</label>
+      <label class="ci"><input type="checkbox" id="peer_mkh" /> 馬偕</label>
+      <label class="ci"><input type="checkbox" id="peer_skh" /> 新光</label>
+      <label class="ci"><input type="checkbox" id="peer_femh" /> 亞東</label>
+      <label class="ci"><input type="checkbox" id="peer_shh" /> 雙和</label>
+      <label class="ci"><input type="checkbox" id="peer_other" /> 其他</label>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">同類品項 <span class="required">*</span></div>
+    <label class="ci"><input type="checkbox" id="noSimilar" /> 無同質品項</label>
+    <label class="ci" style="margin-top:4px;">
+      <input type="checkbox" id="hasSimilar" onchange="toggleEl('similarCodeWrap', this.checked)" /> 本科已有同類品項院內碼
+    </label>
+    <div id="similarCodeWrap" class="sub" style="display:none;">
+      <input type="text" id="similarCode" placeholder="院內碼" />
+    </div>
+    <label class="ci" style="margin-top:4px;">
+      <input type="checkbox" id="delSimilar" onchange="toggleEl('delCodeWrap', this.checked)" /> 本案審核通過後同意刪除品項院內碼
+    </label>
+    <div id="delCodeWrap" class="sub" style="display:none;">
+      <input type="text" id="delCode" placeholder="院內碼" />
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">申請理由說明 <span class="required">*</span></div>
+    <textarea id="reason" rows="5" placeholder="請說明申請理由，包含使用目的、病人需求、預計使用量等..."></textarea>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hd">附件上傳</div>
+    <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:16px;">
+      <p style="font-size:14px;font-weight:600;color:#856404;margin-bottom:8px;">📎 附件請隨後以 Email 寄送</p>
+      <p style="font-size:13px;color:#555;line-height:1.9;">
+        請將以下文件拍照後寄至：<br/>
+        <strong style="color:#1a5fa8;font-size:14px;">joanne032694@gmail.com</strong><br/><br/>
+        ① 報價單<br/>② 衛部(署)許可證影本<br/>③ 仿單型錄<br/>④ 健保核價資料或健保不給付證明
+      </p>
+      <p style="font-size:12px;color:#888;margin-top:10px;">＊信件主旨請註明廠商名稱及申請編號<br/>＊若檢附不完整，不予收受</p>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+  <div class="bottom">
+    <button type="button" class="btn-sec" onclick="saveDraft()">暫存</button>
+    <button type="button" class="btn-main" id="submitBtn" onclick="submitForm()">送出申請</button>
+  </div>
+</form>
+
+<div id="successScreen">
+  <div class="success-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+  </div>
+  <div class="success-title">申請已送出！</div>
+  <div class="success-sub" id="successVendorText"></div>
+  <div class="success-no" id="successNo"></div>
+  <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:16px;margin:16px 0;text-align:left;max-width:320px;">
+    <p style="font-size:14px;font-weight:600;color:#856404;margin-bottom:8px;">📎 請記得寄送附件！</p>
+    <p style="font-size:13px;color:#555;line-height:1.8;">
+      請將以下文件拍照寄至：<br/>
+      <strong style="color:#1a5fa8;">joanne032694@gmail.com</strong><br/><br/>
+      ① 報價單<br/>② 衛部(署)許可證影本<br/>③ 仿單型錄<br/>④ 健保核價資料
+    </p>
+    <p style="font-size:12px;color:#888;margin-top:8px;">信件主旨請註明申請編號</p>
+  </div>
+  <a id="emailBtn" href="#" style="display:block;background:#1a5fa8;color:white;text-align:center;padding:13px 24px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;max-width:280px;margin:0 auto;">
+    📧 點此開啟 Email 寄附件
+  </a>
+  <button class="btn-new" onclick="resetForm()" style="margin-top:12px;">送出新申請</button>
+</div>
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <p>送出中，請稍候...</p>
+</div>
+
+<script>
+  document.getElementById('applyDate').valueAsDate = new Date();
+
+  function toggleEl(id, show) { document.getElementById(id).style.display = show ? 'block' : 'none'; }
+  function handlePayment() { document.getElementById('lockedRow').style.display = document.getElementById('pay_no_nhi').checked ? 'block' : 'none'; }
+  function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+  function c(id) { return document.getElementById(id)?.checked || false; }
+
+  function saveDraft() {
+    localStorage.setItem('draft_v2', JSON.stringify({
+      vendorName: v('vendorName'), contactName: v('contactName'),
+      productName: v('productName'), reason: v('reason')
+    }));
+    alert('暫存成功！');
+  }
+
+  window.addEventListener('load', () => {
+    const draft = localStorage.getItem('draft_v2');
+    if (draft) {
+      try {
+        const d = JSON.parse(draft);
+        if (d.vendorName && confirm('發現上次暫存資料，是否載入？')) {
+          if (d.vendorName) document.getElementById('vendorName').value = d.vendorName;
+          if (d.contactName) document.getElementById('contactName').value = d.contactName;
+          if (d.productName) document.getElementById('productName').value = d.productName;
+          if (d.reason) document.getElementById('reason').value = d.reason;
+        }
+      } catch(e) {}
+    }
+  });
+
+  function submitForm() {
+    const checks = [
+      ['vendorName','請填寫廠商中文名稱'],['contactName','請填寫聯絡人姓名'],
+      ['contactPhone','請填寫聯絡電話'],['applyDate','請選擇申請日期'],
+      ['targetDate','請選擇預定日期'],['productName','請填寫產品中文品名'],
+      ['reason','請填寫申請理由說明'],
+    ];
+    for (const [id, msg] of checks) {
+      if (!v(id)) { alert(msg); document.getElementById(id).focus(); return; }
+    }
+    if (!v('brand'))    { alert('請填寫廠牌、廠商'); return; }
+    if (!v('spec'))     { alert('請填寫規格'); return; }
+    if (!v('model'))    { alert('請填寫型號'); return; }
+    if (!v('usageQty')) { alert('請填寫用量數量'); return; }
+    if (!v('dept'))     { alert('請填寫科別'); return; }
+    if (!c('hasCert') && !c('noRegister')) { alert('請勾選醫療器材許可證或免列管'); return; }
+    if (c('hasCert') && !v('certNo')) { alert('請填寫許可證字號'); return; }
+    if (!c('opNA')) {
+      if (!c('hasOp') || !v('opName')) { alert('請填寫處置手術名稱，或勾選「不適用」'); return; }
+      if (!c('hasCode') || !v('opCode')) { alert('請填寫院內碼，或勾選「不適用」'); return; }
+    }
+    if (!document.querySelector('input[name="apply_type"]:checked'))  { alert('請選擇申請事項'); return; }
+    if (!document.querySelector('input[name="origin_type"]:checked')) { alert('請選擇產地'); return; }
+    if (!document.querySelector('input[name="usage_cycle"]:checked')) { alert('請選擇用量週期'); return; }
+    if (!document.querySelector('input[name="device_class"]:checked')){ alert('請選擇醫療器材等級'); return; }
+    if (!document.querySelector('input[name="usage_type"]:checked'))  { alert('請選擇使用性質'); return; }
+    if (!document.querySelector('input[name="reuse"]:checked'))       { alert('請選擇使用原則'); return; }
+    if (!['pay_nhi','pay_self_code','pay_no_nhi'].some(id => c(id)))  { alert('請選擇給付方式'); return; }
+    const peerIds = ['peer_none','peer_ntu','peer_vgh','peer_tri','peer_cgh','peer_mkh','peer_skh','peer_femh','peer_shh','peer_other'];
+    if (!peerIds.some(id => c(id))) { alert('請選擇同儕使用'); return; }
+    if (!c('noSimilar') && !c('hasSimilar') && !c('delSimilar')) { alert('請選擇同類品項'); return; }
+
+    const peerLabels = {'peer_none':'無','peer_ntu':'台大','peer_vgh':'榮總','peer_tri':'三總','peer_cgh':'長庚','peer_mkh':'馬偕','peer_skh':'新光','peer_femh':'亞東','peer_shh':'雙和','peer_other':'其他'};
+    const peers = peerIds.filter(id => c(id)).map(id => peerLabels[id]).join('、');
+    const pays = [];
+    if (c('pay_nhi')) pays.push('健保碼');
+    if (c('pay_self_code')) pays.push('健保自費項目代碼' + (v('selfCode') ? '：' + v('selfCode') : ''));
+    if (c('pay_no_nhi')) {
+      pays.push('健保不給付'); pays.push('依院方訂定原則');
+      if (c('pay_suggest_self')) pays.push('建議自費單價');
+      if (c('pay_suggest_diff')) pays.push('建議自付差額單價');
+    }
+    const simParts = [];
+    if (c('noSimilar')) simParts.push('無同質品項');
+    if (c('hasSimilar')) simParts.push('已有同類品項院內碼：' + v('similarCode'));
+    if (c('delSimilar')) simParts.push('審核通過後刪除院內碼：' + v('delCode'));
+
+    const vendor = v('vendorName');
+    const appNo = 'NMN' + new Date().getFullYear() + String(Date.now()).slice(-6);
+
+    const msg = [
+      '【申請編號】' + appNo,
+      '【送出時間】' + new Date().toLocaleString('zh-TW'),
+      '',
+      '=== 廠商資訊 ===',
+      '廠商名稱：' + vendor,
+      '聯絡人：' + v('contactName'),
+      '聯絡電話：' + v('contactPhone'),
+      '申請日期：' + v('applyDate'),
+      '預定日期：' + v('targetDate'),
+      '',
+      '=== 申請事項 ===',
+      document.querySelector('input[name="apply_type"]:checked')?.value || '',
+      '',
+      '=== 產品資訊 ===',
+      '中文品名：' + v('productName'),
+      '規格：' + v('spec'),
+      '型號：' + v('model'),
+      '廠牌廠商：' + v('brand'),
+      '產地：' + (document.querySelector('input[name="origin_type"]:checked')?.value || '') + (v('originCountry') ? ' / ' + v('originCountry') : ''),
+      '用量評估：' + v('usageQty') + ' ' + v('usageUnit') + ' / ' + (document.querySelector('input[name="usage_cycle"]:checked')?.value || ''),
+      '',
+      '=== 法規資訊 ===',
+      '醫療器材等級：' + (document.querySelector('input[name="device_class"]:checked')?.value || ''),
+      '許可證：' + (c('hasCert') ? '醫療器材許可證 ' + v('certNo') : '') + (c('noRegister') ? '免列管' : ''),
+      '',
+      '=== 使用資訊 ===',
+      '使用性質：' + (document.querySelector('input[name="usage_type"]:checked')?.value || ''),
+      '科別：' + v('dept'),
+      '使用原則：' + (document.querySelector('input[name="reuse"]:checked')?.value || ''),
+      '',
+      '=== 處置手術 ===',
+      c('opNA') ? '不適用' : '手術名稱：' + v('opName') + '\n院內碼：' + v('opCode'),
+      '',
+      '=== 給付方式 ===',
+      pays.join('、'),
+      '處置內含：' + v('payInclude'),
+      '',
+      '=== 同儕使用 ===',
+      peers,
+      '',
+      '=== 同類品項 ===',
+      simParts.join('；'),
+      '',
+      '=== 申請理由 ===',
+      v('reason'),
+      '',
+      '附件：廠商將另行Email寄送至 joanne032694@gmail.com',
+    ].join('\n');
+
+    document.getElementById('hiddenMessage').value = msg;
+    document.getElementById('emailSubject').value = '【衛材申請單】' + appNo + ' - ' + vendor;
+
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.getElementById('submitBtn').disabled = true;
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      body: new FormData(document.getElementById('mainForm'))
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      if (data.success) {
+        document.getElementById('mainForm').style.display = 'none';
+        document.getElementById('successScreen').style.display = 'flex';
+        document.getElementById('successVendorText').textContent = vendor + ' 的申請已收到';
+        document.getElementById('successNo').textContent = '申請編號：' + appNo;
+        const subject = encodeURIComponent('【衛材申請附件】' + appNo + ' - ' + vendor);
+        const body = encodeURIComponent('申請編號：' + appNo + '\n廠商：' + vendor + '\n\n請查收附件照片');
+        document.getElementById('emailBtn').href = 'mailto:joanne032694@gmail.com?subject=' + subject + '&body=' + body;
+        localStorage.removeItem('draft_v2');
+      } else {
+        document.getElementById('submitBtn').disabled = false;
+        alert('送出失敗：' + (data.message || '請稍後再試'));
+      }
+    })
+    .catch(() => {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+      alert('送出失敗，請確認網路連線後再試。');
+    });
+  }
+
+  function resetForm() {
+    document.getElementById('mainForm').reset();
+    document.getElementById('applyDate').valueAsDate = new Date();
+    document.getElementById('lockedRow').style.display = 'none';
+    ['certNoWrap','opNameWrap','opCodeWrap','similarCodeWrap','delCodeWrap','selfCodeWrap'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
+    document.getElementById('mainForm').style.display = 'block';
+    document.getElementById('successScreen').style.display = 'none';
+    document.getElementById('submitBtn').disabled = false;
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
