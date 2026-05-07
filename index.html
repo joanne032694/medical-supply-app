@@ -40,13 +40,19 @@
   .bottom { padding: 14px 16px; background: white; border-top: 2px solid #c8e6c9; display: flex; gap: 10px; position: sticky; bottom: 0; z-index: 100; }
   .btn-main { flex: 1; background: linear-gradient(135deg, #134e5e, #71b280); color: white; border: none; border-radius: 14px; padding: 16px; font-size: 17px; font-weight: 700; cursor: pointer; letter-spacing: 1px; }
   .btn-main:active { opacity: 0.85; }
+  .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
   .btn-sec { background: #f1f8f2; color: #2e7d32; border: 2px solid #a5d6a7; border-radius: 14px; padding: 16px; font-size: 16px; font-weight: 600; cursor: pointer; }
   #successScreen { display: none; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; background: #f1f8f2; }
   .success-icon { width: 90px; height: 90px; background: linear-gradient(135deg, #c8e6c9, #a5d6a7); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
   .success-icon svg { width: 45px; height: 45px; stroke: #1b5e20; }
   .success-title { font-size: 26px; font-weight: 700; margin-bottom: 10px; color: #2e7d32; }
+  .success-sub { font-size: 16px; color: #555; line-height: 1.8; }
   .success-no { font-size: 15px; background: #f1f8f2; color: #2e7d32; padding: 10px 18px; border-radius: 10px; display: inline-block; margin: 14px 0 24px; font-weight: 700; border: 2px solid #a5d6a7; }
   .btn-new { background: linear-gradient(135deg, #134e5e, #71b280); color: white; border: none; border-radius: 14px; padding: 16px 36px; font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 16px; }
+  #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(241,248,242,0.95); z-index: 999; flex-direction: column; align-items: center; justify-content: center; }
+  .spinner { width: 44px; height: 44px; border: 4px solid #c8e6c9; border-top-color: #2e7d32; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loadingOverlay p { margin-top: 16px; font-size: 16px; color: #2e7d32; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -267,7 +273,7 @@
       <p style="font-size:14px;font-weight:600;color:#856404;margin-bottom:8px;">📎 附件請隨後以 Email 寄送</p>
       <p style="font-size:13px;color:#555;line-height:1.9;">
         請將以下文件拍照後寄至：<br/>
-        <strong style="color:#1a5fa8;font-size:14px;">joanne032694@gmail.com</strong><br/><br/>
+        <strong style="color:#1a5fa8;font-size:14px;">10273@km.eck.org.tw</strong><br/><br/>
         ① 報價單<br/>② 衛部(署)許可證影本<br/>③ 仿單型錄<br/>④ 健保核價資料或健保不給付證明
       </p>
       <p style="font-size:12px;color:#888;margin-top:10px;">＊信件主旨請註明廠商名稱及申請編號<br/>＊若檢附不完整，不予收受</p>
@@ -277,7 +283,7 @@
   <div style="height:80px;"></div>
   <div class="bottom">
     <button type="button" class="btn-sec" onclick="saveDraft()">暫存</button>
-    <button type="button" class="btn-main" onclick="submitForm()">送出申請</button>
+    <button type="button" class="btn-main" id="submitBtn" onclick="submitForm()">送出申請</button>
   </div>
 </div>
 
@@ -287,15 +293,27 @@
       <polyline points="20 6 9 17 4 12"/>
     </svg>
   </div>
-  <div class="success-title">申請已準備好！</div>
+  <div class="success-title">申請已送出！</div>
+  <div class="success-sub" id="successVendorText"></div>
   <div class="success-no" id="successNo"></div>
-  <p style="font-size:15px;color:#555;margin-bottom:20px;line-height:1.8;">您的郵件程式已開啟，<br/>內容已自動填好，<br/>請確認後按<strong>「送出」</strong>寄出。</p>
-  <button class="btn-new" onclick="resetForm()">填寫新申請</button>
+  <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:16px;margin:16px 0;text-align:left;max-width:320px;">
+    <p style="font-size:14px;font-weight:600;color:#856404;margin-bottom:8px;">📎 請記得寄送附件！</p>
+    <p style="font-size:13px;color:#555;line-height:1.8;">
+      請將以下文件拍照寄至：<br/>
+      <strong style="color:#1a5fa8;">10273@km.eck.org.tw</strong><br/><br/>
+      ① 報價單<br/>② 衛部(署)許可證影本<br/>③ 仿單型錄<br/>④ 健保核價資料
+    </p>
+  </div>
+  <button class="btn-new" onclick="resetForm()" style="margin-top:12px;">送出新申請</button>
+</div>
+
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <p>送出中，請稍候...</p>
 </div>
 
 <script>
   document.getElementById('applyDate').valueAsDate = new Date();
-
   function toggleEl(id, show) { document.getElementById(id).style.display = show ? 'block' : 'none'; }
   function handlePayment() { document.getElementById('lockedRow').style.display = document.getElementById('pay_no_nhi').checked ? 'block' : 'none'; }
   function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
@@ -358,17 +376,14 @@
 
     const peerLabels = {'peer_none':'無','peer_ntu':'台大','peer_vgh':'榮總','peer_tri':'三總','peer_cgh':'長庚','peer_mkh':'馬偕','peer_skh':'新光','peer_femh':'亞東','peer_shh':'雙和','peer_other':'其他'};
     const peers = peerIds.filter(id => c(id)).map(id => peerLabels[id]).join('、');
-
     const pays = [];
     if (c('pay_nhi')) pays.push('健保碼');
     if (c('pay_self_code')) pays.push('健保自費項目代碼' + (v('selfCode') ? '：' + v('selfCode') : ''));
     if (c('pay_no_nhi')) {
-      pays.push('健保不給付');
-      pays.push('依院方訂定原則');
+      pays.push('健保不給付'); pays.push('依院方訂定原則');
       if (c('pay_suggest_self')) pays.push('建議自費單價');
       if (c('pay_suggest_diff')) pays.push('建議自付差額單價');
     }
-
     const simParts = [];
     if (c('noSimilar')) simParts.push('無同質品項');
     if (c('hasSimilar')) simParts.push('已有同類品項院內碼：' + v('similarCode'));
@@ -377,7 +392,7 @@
     const vendor = v('vendorName');
     const appNo = 'NMN' + new Date().getFullYear() + String(Date.now()).slice(-6);
 
-    const body = [
+    const msgContent = [
       '【申請編號】' + appNo,
       '【送出時間】' + new Date().toLocaleString('zh-TW'),
       '',
@@ -424,18 +439,39 @@
       '=== 申請理由 ===',
       v('reason'),
       '',
-      '=== 附件 ===',
-      '請另行寄送：報價單、許可證影本、仿單型錄、健保核價資料',
+      '附件：廠商將另行Email寄送至 10273@km.eck.org.tw',
     ].join('\n');
 
-    const subject = encodeURIComponent('【衛材申請單】' + appNo + ' - ' + vendor);
-    const mailBody = encodeURIComponent(body);
-    window.location.href = 'mailto:joanne032694@gmail.com?subject=' + subject + '&body=' + mailBody;
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    document.getElementById('submitBtn').disabled = true;
 
-    document.getElementById('mainForm').style.display = 'none';
-    document.getElementById('successScreen').style.display = 'flex';
-    document.getElementById('successNo').textContent = '申請編號：' + appNo;
-    localStorage.removeItem('draft_v2');
+    fetch('https://formspree.io/f/xwvyqnvr', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        申請編號: appNo,
+        申請內容: msgContent
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      if (data.ok) {
+        document.getElementById('mainForm').style.display = 'none';
+        document.getElementById('successScreen').style.display = 'flex';
+        document.getElementById('successVendorText').textContent = vendor + ' 的申請已收到';
+        document.getElementById('successNo').textContent = '申請編號：' + appNo;
+        localStorage.removeItem('draft_v2');
+      } else {
+        document.getElementById('submitBtn').disabled = false;
+        alert('送出失敗，請稍後再試。');
+      }
+    })
+    .catch(() => {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+      alert('送出失敗，請確認網路連線後再試。');
+    });
   }
 
   function resetForm() {
@@ -448,9 +484,9 @@
     });
     document.getElementById('mainForm').style.display = 'block';
     document.getElementById('successScreen').style.display = 'none';
+    document.getElementById('submitBtn').disabled = false;
     window.scrollTo(0, 0);
   }
 </script>
 </body>
 </html>
-
